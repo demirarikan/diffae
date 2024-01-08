@@ -16,6 +16,7 @@ from multiprocessing import get_context
 import os
 from dataset_util import *
 from torch.utils.data.distributed import DistributedSampler
+from torch.utils.data import Dataset
 
 data_paths = {
     'ffhqlmdb256':
@@ -260,7 +261,7 @@ class TrainConfig(BaseConfig):
 
     @property
     def model_out_channels(self):
-        return 3
+        return 1
 
     def make_T_sampler(self):
         if self.T_sampler == 'uniform':
@@ -301,6 +302,11 @@ class TrainConfig(BaseConfig):
                               original_resolution=None,
                               crop_d2c=True,
                               **kwargs)
+        elif self.data_name == 'sim_us':
+            transform = transforms.Compose(
+                [transforms.Resize((64, 64)), transforms.ToTensor()])
+            return USDataset(path=r'C:\Users\dmrar\Desktop\WS23-24\computational surgineering\CT_labelmaps',
+                             transform=transform)
         else:
             raise NotImplementedError()
 
@@ -318,17 +324,30 @@ class TrainConfig(BaseConfig):
                                          drop_last=True)
         else:
             sampler = None
-        return DataLoader(
-            dataset,
-            batch_size=batch_size or self.batch_size,
-            sampler=sampler,
-            # with sampler, use the sample instead of this option
-            shuffle=False if sampler else shuffle,
-            num_workers=num_worker or self.num_workers,
-            pin_memory=True,
-            drop_last=drop_last,
-            multiprocessing_context=get_context('fork'),
-        )
+        if isinstance(dataset, USDataset):
+            return DataLoader(
+                dataset,
+                batch_size=batch_size or self.batch_size,
+                sampler=sampler,
+                # with sampler, use the sample instead of this option
+                shuffle=False if sampler else shuffle,
+                num_workers=num_worker or self.num_workers,
+                pin_memory=True,
+                drop_last=drop_last,
+                multiprocessing_context=get_context('spawn'),
+            )
+        else:
+            return DataLoader(
+                dataset,
+                batch_size=batch_size or self.batch_size,
+                sampler=sampler,
+                # with sampler, use the sample instead of this option
+                shuffle=False if sampler else shuffle,
+                num_workers=num_worker or self.num_workers,
+                pin_memory=True,
+                drop_last=drop_last,
+                multiprocessing_context=get_context('fork'),
+            )
 
     def make_model_conf(self):
         if self.model_name == ModelName.beatgans_ddpm:
@@ -401,7 +420,7 @@ class TrainConfig(BaseConfig):
                 enc_grad_checkpoint=self.net_enc_grad_checkpoint,
                 enc_attn_resolutions=self.net_enc_attn,
                 image_size=self.img_size,
-                in_channels=3,
+                in_channels=1,
                 model_channels=self.net_ch,
                 num_classes=None,
                 num_head_channels=-1,

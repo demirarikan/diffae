@@ -64,7 +64,7 @@ class LitModel(pl.LightningModule):
         # initial variables for consistent sampling
         self.register_buffer(
             'x_T',
-            torch.randn(conf.sample_size, 3, conf.img_size, conf.img_size))
+            torch.randn(conf.sample_size, 1, conf.img_size, conf.img_size))  # DEMIR TODO: WHERE X_T IS CREATED MAYBE? CHANGE CONF.SAMPLE_SIZE TO BATCH_SIZE
 
         if conf.pretrain is not None:
             print(f'loading pretrain ... {conf.pretrain.name}')

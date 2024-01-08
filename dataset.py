@@ -714,3 +714,39 @@ class Repeat(Dataset):
     def __getitem__(self, index):
         index = index % self.original_len
         return self.dataset[index]
+
+
+class USDataset(Dataset):
+    def __init__(self, path, transform):
+        self.path = path
+        self.transform = transform
+        self.image_paths = self.get_image_paths()
+    
+    def get_image_paths(self):
+        image_paths = []
+        for root, dirs, files in os.walk(self.path):
+            for dir in dirs:
+                for root2, dirs2, files2 in os.walk(os.path.join(root, dir)):
+                    for file in files2:
+                        if file.endswith('.png'):
+                            image_paths.append(os.path.join(root2, file))
+        return image_paths
+
+    def __len__(self):
+        return len(self.image_paths)
+    
+    def __getitem__(self, index):
+        img = Image.open(self.image_paths[index])
+        if self.transform is not None:
+            img = self.transform(img)
+        return {'img': img, 'index': index}
+    
+
+    
+if __name__ == '__main__':
+    transform = transforms.Compose([transforms.Resize((256, 256)), transforms.ToTensor()])
+    dataset = USDataset(r'C:\Users\dmrar\Desktop\WS23-24\computational surgineering\CT_labelmaps', transform)
+    print(len(dataset))
+    print(dataset[0]['img'].shape)
+    import matplotlib.pyplot as plt
+    plt.imshow(dataset[0]['img'][0])

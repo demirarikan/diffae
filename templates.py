@@ -299,3 +299,15 @@ def pretrain_bedroom128():
     )
     conf.latent_infer_path = f'checkpoints/{bedroom128_autoenc().name}/latent.pkl'
     return conf
+
+def sim_us_training():
+    conf = autoenc_base()
+    conf.data_name = "sim_us"
+    conf.batch_size = 1
+    conf.batch_size_eval = conf.batch_size
+    conf.eval_ema_every_samples = 500
+    conf.eval_every_samples = 500
+    conf.total_samples = 12000
+    conf.img_size = 64
+    conf.name = 'sim_us_training'
+    return conf
