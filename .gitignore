@@ -13,3 +13,5 @@ datasets/celeba
 checkpoints
 
 .ipynb_checkpoints/
+env-diffae
+.vscode
