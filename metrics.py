@@ -37,7 +37,7 @@ def make_subset_loader(conf: TrainConfig,
         num_workers=conf.num_workers,
         pin_memory=True,
         drop_last=drop_last,
-        multiprocessing_context=get_context('spawn'), #multiprocessing_context=get_context('fork'),
+        multiprocessing_context=get_context('fork'),
     )
 
 

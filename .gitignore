@@ -16,4 +16,3 @@ checkpoints
 .ipynb_checkpoints/
 env-diffae
 .vscode
-pytorch-fid-0.2.0
