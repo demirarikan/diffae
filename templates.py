@@ -300,6 +300,7 @@ def pretrain_bedroom128():
     conf.latent_infer_path = f'checkpoints/{bedroom128_autoenc().name}/latent.pkl'
     return conf
 
+
 def sim_us_training():
     conf = autoenc_base()
     conf.data_name = "sim_us"
@@ -309,7 +310,7 @@ def sim_us_training():
     conf.eval_every_samples = 4000
     conf.eval_num_images = 1
     conf.total_samples = 12000
-    conf.img_size = 64
+    conf.img_size = 128
     conf.num_workers = 1
     conf.name = 'sim_us_training'
     return conf

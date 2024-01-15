@@ -744,9 +744,10 @@ class USDataset(Dataset):
 
     
 if __name__ == '__main__':
-    transform = transforms.Compose([transforms.Resize((256, 256)), transforms.ToTensor()])
+    transform = transforms.Compose([transforms.Pad((0, 41, 0, 41)), transforms.Resize((128, 128)), transforms.ToTensor()])
     dataset = USDataset(r'C:\Users\dmrar\Desktop\WS23-24\computational surgineering\CT_labelmaps', transform)
     print(len(dataset))
     print(dataset[0]['img'].shape)
     import matplotlib.pyplot as plt
-    plt.imshow(dataset[0]['img'][0])
+    plt.imshow(dataset[0]['img'][0], cmap='gray')
+    plt.show()
