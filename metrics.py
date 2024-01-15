@@ -37,7 +37,7 @@ def make_subset_loader(conf: TrainConfig,
         num_workers=conf.num_workers,
         pin_memory=True,
         drop_last=drop_last,
-        multiprocessing_context=get_context('fork'),
+        multiprocessing_context=get_context('spawn'), #multiprocessing_context=get_context('fork'),
     )
 
 
@@ -88,7 +88,7 @@ def evaluate_lpips(
                     model_kwargs=model_kwargs)
                 x_T = x_T['sample']
             else:
-                x_T = torch.randn((len(imgs), 3, conf.img_size, conf.img_size),
+                x_T = torch.randn((len(imgs), 1, conf.img_size, conf.img_size),
                                   device=device)
 
             if conf.model_type == ModelType.ddpm:
@@ -283,7 +283,7 @@ def evaluate_fid(
                 for batch in tqdm(train_loader, desc='generating images'):
                     imgs = batch['img'].to(device)
                     x_T = torch.randn(
-                        (len(imgs), 3, conf.img_size, conf.img_size),
+                        (len(imgs), 1, conf.img_size, conf.img_size),
                         device=device)
                     batch_images = render_condition(
                         conf=conf,
@@ -292,7 +292,7 @@ def evaluate_fid(
                         x_start=imgs,
                         cond=None,
                         sampler=sampler,
-                        latent_sampler=latent_sampler).cpu()
+                        ).cpu() #latent_sampler=latent_sampler
                     # model: BeatGANsAutoencModel
                     # # returns {'cond', 'cond2'}
                     # conds = model.encode(imgs)

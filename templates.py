@@ -303,11 +303,13 @@ def pretrain_bedroom128():
 def sim_us_training():
     conf = autoenc_base()
     conf.data_name = "sim_us"
-    conf.batch_size = 1
-    conf.batch_size_eval = conf.batch_size
-    conf.eval_ema_every_samples = 500
-    conf.eval_every_samples = 500
+    conf.batch_size = 8
+    conf.batch_size_eval = 1
+    conf.eval_ema_every_samples = 4000
+    conf.eval_every_samples = 4000
+    conf.eval_num_images = 1
     conf.total_samples = 12000
     conf.img_size = 64
+    conf.num_workers = 1
     conf.name = 'sim_us_training'
     return conf

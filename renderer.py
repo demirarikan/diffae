@@ -53,8 +53,12 @@ def render_condition(
         # returns {'cond', 'cond2'}
         if cond is None:
             cond = model.encode(x_start)
-        return sampler.sample(model=model,
-                              noise=x_T,
-                              model_kwargs={'cond': cond})
+            return sampler.sample(model=model,
+                                noise=x_T,
+                                model_kwargs= cond)
+        else: 
+            return sampler.sample(model=model,
+                                noise=x_T,
+                                model_kwargs= {'cond': cond})
     else:
         raise NotImplementedError()

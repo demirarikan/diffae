@@ -305,7 +305,7 @@ class TrainConfig(BaseConfig):
         elif self.data_name == 'sim_us':
             transform = transforms.Compose(
                 [transforms.Resize((64, 64)), transforms.ToTensor()])
-            return USDataset(path=r'C:\Users\dmrar\Desktop\WS23-24\computational surgineering\CT_labelmaps',
+            return USDataset(path=r'datasets\CT_labelmaps',
                              transform=transform)
         else:
             raise NotImplementedError()

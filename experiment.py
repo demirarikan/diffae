@@ -428,7 +428,7 @@ class LitModel(pl.LightningModule):
             else:
                 imgs = batch['img']
             self.log_sample(x_start=imgs)
-            self.evaluate_scores()
+            # self.evaluate_scores()
 
     def on_before_optimizer_step(self, optimizer: Optimizer,
                                  optimizer_idx: int) -> None:
@@ -916,7 +916,8 @@ def train(conf: TrainConfig, gpus, nodes=1, mode: str = 'train'):
         plugins.append(DDPPlugin(find_unused_parameters=False))
 
     trainer = pl.Trainer(
-        max_steps=conf.total_samples // conf.batch_size_effective,
+        max_epochs = 500,
+        # max_steps=conf.total_samples // conf.batch_size_effective,
         resume_from_checkpoint=resume,
         gpus=gpus,
         num_nodes=nodes,
