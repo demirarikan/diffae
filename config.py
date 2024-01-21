@@ -18,6 +18,8 @@ from dataset_util import *
 from torch.utils.data.distributed import DistributedSampler
 from torch.utils.data import Dataset
 
+import os
+
 data_paths = {
     'ffhqlmdb256':
     os.path.expanduser('datasets/ffhq256.lmdb'),
@@ -40,6 +42,8 @@ data_paths = {
         'datasets/celeba_anno/CelebAMask-HQ-attribute-anno.txt'),
     'celeba_relight':
     os.path.expanduser('datasets/celeba_hq_light/celeba_light.txt'),
+    'sim_us':
+    'C:\\Users\\dmrar\\Desktop\\WS23-24\\computational surgineering\\CT_labelmaps',
 }
 
 
@@ -305,8 +309,10 @@ class TrainConfig(BaseConfig):
                               **kwargs)
         elif self.data_name == 'sim_us':
             transform = transforms.Compose(
-                [transforms.Resize((self.img_size, self.img_size)), transforms.ToTensor()])
-            return USDataset(path=r'datasets\CT_labelmaps',
+                [transforms.Pad((0, 41, 0, 41)),
+                 transforms.Resize((self.img_size, self.img_size)),
+                 transforms.ToTensor()])
+            return USDataset(path=self.data_path,
                              transform=transform)
         else:
             raise NotImplementedError()
@@ -338,6 +344,9 @@ class TrainConfig(BaseConfig):
         #         multiprocessing_context=get_context('spawn'),
         #     )
         # else:
+            context = 'fork'
+            if os.name == 'nt':
+                context = 'spawn'
             return DataLoader(
                 dataset,
                 batch_size=batch_size or self.batch_size,
@@ -347,7 +356,7 @@ class TrainConfig(BaseConfig):
                 num_workers=num_worker or self.num_workers,
                 pin_memory=True,
                 drop_last=drop_last,
-                multiprocessing_context=get_context('fork'),
+                multiprocessing_context=get_context(context),
             )
 
     def make_model_conf(self):

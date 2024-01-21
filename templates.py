@@ -300,6 +300,7 @@ def pretrain_bedroom128():
     conf.latent_infer_path = f'checkpoints/{bedroom128_autoenc().name}/latent.pkl'
     return conf
 
+
 def sim_us_training():
     conf = autoenc_base()
     conf.data_name = "sim_us"
