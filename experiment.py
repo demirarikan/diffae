@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 import pytorch_lightning as pl
 import torch
+import wandb
 from numpy.lib.function_base import flip
 from pytorch_lightning import loggers as pl_loggers
 from pytorch_lightning.callbacks import *
@@ -398,12 +399,11 @@ class LitModel(pl.LightningModule):
                     losses[key] = self.all_gather(losses[key]).mean()
 
             if self.global_rank == 0:
-                self.logger.experiment.add_scalar('loss', losses['loss'],
-                                                  self.num_samples)
+                self.logger.experiment.log({'loss': losses['loss']}, step=self.num_samples)
                 for key in ['vae', 'latent', 'mmd', 'chamfer', 'arg_cnt']:
                     if key in losses:
-                        self.logger.experiment.add_scalar(
-                            f'loss/{key}', losses[key], self.num_samples)
+                        self.logger.experiment.log(
+                            {f'loss/{key}': losses[key]}, step=self.num_samples)
 
         return {'loss': loss}
 
@@ -515,14 +515,13 @@ class LitModel(pl.LightningModule):
                         real = real.flatten(0, 1)
 
                     if self.global_rank == 0:
-                        grid_real = (make_grid(real) + 1) / 2
-                        self.logger.experiment.add_image(
-                            f'sample{postfix}/real', grid_real,
-                            self.num_samples)
+                        grid_real = make_grid(real)
+                        wandb_img = wandb.Image(grid_real.cpu().permute(1,2,0).numpy())
+                        self.logger.experiment.log({'real samples': wandb_img})
 
                 if self.global_rank == 0:
                     # save samples to the tensorboard
-                    grid = (make_grid(gen) + 1) / 2
+                    grid = make_grid(gen)
                     sample_dir = os.path.join(self.conf.logdir,
                                               f'sample{postfix}')
                     if not os.path.exists(sample_dir):
@@ -530,8 +529,10 @@ class LitModel(pl.LightningModule):
                     path = os.path.join(sample_dir,
                                         '%d.png' % self.num_samples)
                     save_image(grid, path)
-                    self.logger.experiment.add_image(f'sample{postfix}', grid,
-                                                     self.num_samples)
+                    wandb_img = wandb.Image(grid.cpu().permute(1,2,0).numpy())
+                    self.logger.experiment.log({'samples': wandb_img})
+                    # self.logger.experiment.log_image(f'sample{postfix}', grid,
+                    #                                  self.num_samples)
             model.train()
 
         if self.conf.sample_every_samples > 0 and is_time(
@@ -899,9 +900,13 @@ def train(conf: TrainConfig, gpus, nodes=1, mode: str = 'train'):
         else:
             resume = None
 
-    tb_logger = pl_loggers.TensorBoardLogger(save_dir=conf.logdir,
-                                             name=None,
-                                             version='')
+    # tb_logger = pl_loggers.TensorBoardLogger(save_dir=conf.logdir,
+    #                                          name=None,
+    #                                          version='')
+    tb_logger = pl_loggers.WandbLogger(save_dir=conf.logdir,
+                                       name=None,
+                                       version='',
+                                       project='diffae')
 
     # from pytorch_lightning.
 
@@ -916,7 +921,7 @@ def train(conf: TrainConfig, gpus, nodes=1, mode: str = 'train'):
         plugins.append(DDPPlugin(find_unused_parameters=False))
 
     trainer = pl.Trainer(
-        max_epochs = 500,
+        max_epochs = conf.max_epochs,
         # max_steps=conf.total_samples // conf.batch_size_effective,
         resume_from_checkpoint=resume,
         gpus=gpus,

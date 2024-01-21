@@ -64,6 +64,7 @@ class TrainConfig(BaseConfig):
     manipulate_loss: ManipulateLossType = ManipulateLossType.bce
     manipulate_znormalize: bool = False
     manipulate_seed: int = 0
+    max_epochs: int = 5
     accum_batches: int = 1
     autoenc_mid_attn: bool = True
     batch_size: int = 16
@@ -304,7 +305,7 @@ class TrainConfig(BaseConfig):
                               **kwargs)
         elif self.data_name == 'sim_us':
             transform = transforms.Compose(
-                [transforms.Resize((64, 64)), transforms.ToTensor()])
+                [transforms.Resize((self.img_size, self.img_size)), transforms.ToTensor()])
             return USDataset(path=r'datasets\CT_labelmaps',
                              transform=transform)
         else:

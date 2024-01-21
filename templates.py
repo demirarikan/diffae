@@ -309,7 +309,8 @@ def sim_us_training():
     conf.eval_every_samples = 4000
     conf.eval_num_images = 1
     conf.total_samples = 12000
-    conf.img_size = 64
+    conf.img_size = 128
     conf.num_workers = 1
-    conf.name = 'sim_us_training'
+    conf.name = 'sim_us_training_v2'
+    conf.max_epochs = 200
     return conf
