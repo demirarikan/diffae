@@ -42,8 +42,6 @@ data_paths = {
         'datasets/celeba_anno/CelebAMask-HQ-attribute-anno.txt'),
     'celeba_relight':
     os.path.expanduser('datasets/celeba_hq_light/celeba_light.txt'),
-    'sim_us':
-    'C:\\Users\\dmrar\\Desktop\\WS23-24\\computational surgineering\\CT_labelmaps',
 }
 
 
@@ -168,6 +166,8 @@ class TrainConfig(BaseConfig):
     work_cache_dir: str = os.path.expanduser('~/mycache')
     # to be overridden
     name: str = ''
+    # Custom additions for training
+    custom_dataset_path: str = ''
 
     def __post_init__(self):
         self.batch_size_eval = self.batch_size_eval or self.batch_size
@@ -308,12 +308,9 @@ class TrainConfig(BaseConfig):
                               crop_d2c=True,
                               **kwargs)
         elif self.data_name == 'sim_us':
-            transform = transforms.Compose(
-                [transforms.Pad((0, 41, 0, 41)),
-                 transforms.Resize((self.img_size, self.img_size)),
-                 transforms.ToTensor()])
-            return USDataset(path=self.data_path,
-                             transform=transform)
+            return SimUSDataset(path=self.custom_dataset_path)
+        elif self.data_name == 'real_us':
+            return RealUSDataset(path=self.custom_dataset_path)
         else:
             raise NotImplementedError()
 
