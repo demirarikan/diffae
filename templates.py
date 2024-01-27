@@ -320,9 +320,9 @@ def sim_us_training():
 def real_us_training():
     conf = autoenc_base()
     conf.data_name = "real_us"
-    conf.batch_size = 8
+    conf.batch_size = 16
     conf.batch_size_eval = 8
-    conf.eval_ema_every_samples = 5
+    conf.eval_ema_every_samples = 8000
     conf.eval_every_samples = 0
     conf.eval_num_images = 500
     conf.total_samples = 7866
