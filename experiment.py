@@ -102,7 +102,7 @@ class LitModel(pl.LightningModule):
             latent_sampler = self.conf._make_latent_diffusion_conf(T_latent).make_sampler()
 
         noise = torch.randn(N,
-                            3,
+                            1,
                             self.conf.img_size,
                             self.conf.img_size,
                             device=device)
@@ -115,7 +115,7 @@ class LitModel(pl.LightningModule):
             conds_mean=self.conds_mean,
             conds_std=self.conds_std,
         )
-        pred_img = (pred_img + 1) / 2
+        # pred_img = (pred_img + 1) / 2
         return pred_img
 
     def render(self, noise, cond=None, T=None):
@@ -428,7 +428,7 @@ class LitModel(pl.LightningModule):
             else:
                 imgs = batch['img']
             self.log_sample(x_start=imgs)
-            # self.evaluate_scores()
+            self.evaluate_scores()
 
     def on_before_optimizer_step(self, optimizer: Optimizer,
                                  optimizer_idx: int) -> None:
@@ -515,7 +515,7 @@ class LitModel(pl.LightningModule):
                         real = real.flatten(0, 1)
 
                     if self.global_rank == 0:
-                        grid_real = make_grid(real)
+                        grid_real = make_grid(real, normalize=False)
                         wandb_img = wandb.Image(grid_real.cpu().permute(1,2,0).numpy())
                         self.logger.experiment.log({'real samples': wandb_img})
 
@@ -531,8 +531,6 @@ class LitModel(pl.LightningModule):
                     save_image(grid, path)
                     wandb_img = wandb.Image(grid.cpu().permute(1,2,0).numpy())
                     self.logger.experiment.log({'samples': wandb_img})
-                    # self.logger.experiment.log_image(f'sample{postfix}', grid,
-                    #                                  self.num_samples)
             model.train()
 
         if self.conf.sample_every_samples > 0 and is_time(
@@ -588,8 +586,7 @@ class LitModel(pl.LightningModule):
                                  conds_mean=self.conds_mean,
                                  conds_std=self.conds_std)
             if self.global_rank == 0:
-                self.logger.experiment.add_scalar(f'FID{postfix}', score,
-                                                  self.num_samples)
+                self.logger.experiment.log({f'FID{postfix}': score}, step=self.num_samples)
                 if not os.path.exists(self.conf.logdir):
                     os.makedirs(self.conf.logdir)
                 with open(os.path.join(self.conf.logdir, 'eval.txt'),
@@ -620,7 +617,7 @@ class LitModel(pl.LightningModule):
                 self.num_samples, self.conf.eval_every_samples,
                 self.conf.batch_size_effective):
             print(f'eval fid @ {self.num_samples}')
-            lpips(self.model, '')
+            # lpips(self.model, '')
             fid(self.model, '')
 
         if self.conf.eval_ema_every_samples > 0 and self.num_samples > 0 and is_time(
@@ -903,7 +900,7 @@ def train(conf: TrainConfig, gpus, nodes=1, mode: str = 'train'):
     # tb_logger = pl_loggers.TensorBoardLogger(save_dir=conf.logdir,
     #                                          name=None,
     #                                          version='')
-    tb_logger = pl_loggers.WandbLogger(save_dir=conf.logdir,
+    wandb_logger = pl_loggers.WandbLogger(save_dir=conf.logdir,
                                        name=None,
                                        version='',
                                        project='diffae')
@@ -935,7 +932,7 @@ def train(conf: TrainConfig, gpus, nodes=1, mode: str = 'train'):
         # clip in the model instead
         # gradient_clip_val=conf.grad_clip,
         replace_sampler_ddp=True,
-        logger=tb_logger,
+        logger=wandb_logger,
         accumulate_grad_batches=conf.accum_batches,
         plugins=plugins,
     )
@@ -963,7 +960,7 @@ def train(conf: TrainConfig, gpus, nodes=1, mode: str = 'train'):
         if get_rank() == 0:
             # save to tensorboard
             for k, v in out.items():
-                tb_logger.experiment.add_scalar(
+                wandb_logger.experiment.add_scalar(
                     k, v, state['global_step'] * conf.batch_size_effective)
 
             # # save to file

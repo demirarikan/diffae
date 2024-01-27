@@ -306,8 +306,8 @@ def sim_us_training():
     conf.data_name = "sim_us"
     conf.batch_size = 8
     conf.batch_size_eval = 1
-    conf.eval_ema_every_samples = 4000
-    conf.eval_every_samples = 4000
+    conf.eval_ema_every_samples = 12000
+    conf.eval_every_samples = 0
     conf.eval_num_images = 1
     conf.total_samples = 12000
     conf.img_size = 128
@@ -321,14 +321,15 @@ def real_us_training():
     conf = autoenc_base()
     conf.data_name = "real_us"
     conf.batch_size = 8
-    conf.batch_size_eval = 1
-    conf.eval_ema_every_samples = 4000
-    conf.eval_every_samples = 4000
-    conf.eval_num_images = 1
+    conf.batch_size_eval = 8
+    conf.eval_ema_every_samples = 5
+    conf.eval_every_samples = 0
+    conf.eval_num_images = 500
     conf.total_samples = 7866
     conf.img_size = 128
     conf.num_workers = 1
-    conf.name = 'real_us_training_v1'
+    conf.name = 'real_us_training_v2'
     conf.max_epochs = 200
     conf.custom_dataset_path = R'D:\Desktop\demir\diffae\datasets\real_us'
+    conf.beta_scheduler = 'cosine'
     return conf

@@ -28,6 +28,9 @@ def make_subset_loader(conf: TrainConfig,
         sampler = DistributedSampler(dataset, shuffle=shuffle)
     else:
         sampler = None
+        context = 'fork'
+        if os.name == 'nt':
+            context = 'spawn'
     return DataLoader(
         dataset,
         batch_size=batch_size,
@@ -37,7 +40,7 @@ def make_subset_loader(conf: TrainConfig,
         num_workers=conf.num_workers,
         pin_memory=True,
         drop_last=drop_last,
-        multiprocessing_context=get_context('fork'),
+        multiprocessing_context=get_context(context),
     )
 
 
@@ -196,8 +199,7 @@ def evaluate_fid(
 
         if not os.path.exists(cache_dir):
             # write files to the cache
-            # the images are normalized, hence need to denormalize first
-            loader_to_path(val_loader, cache_dir, denormalize=True)
+            loader_to_path(val_loader, cache_dir, denormalize=False)
 
         # create the generate dir
         if os.path.exists(conf.generate_dir):
@@ -222,7 +224,7 @@ def evaluate_fid(
             for i in trange(0, eval_num_images, batch_size, desc=desc):
                 batch_size = min(batch_size, eval_num_images - i)
                 x_T = torch.randn(
-                    (batch_size, 3, conf.img_size, conf.img_size),
+                    (batch_size, 1, conf.img_size, conf.img_size),
                     device=device)
                 batch_images = render_uncondition(
                     conf=conf,
@@ -233,7 +235,7 @@ def evaluate_fid(
                     conds_mean=conds_mean,
                     conds_std=conds_std).cpu()
 
-                batch_images = (batch_images + 1) / 2
+                # batch_images = (batch_images + 1) / 2
                 # keep the generated images
                 for j in range(len(batch_images)):
                     img_name = filename(i + j)
@@ -250,7 +252,7 @@ def evaluate_fid(
                 for i in trange(0, eval_num_images, batch_size, desc=desc):
                     batch_size = min(batch_size, eval_num_images - i)
                     x_T = torch.randn(
-                        (batch_size, 3, conf.img_size, conf.img_size),
+                        (batch_size, 1, conf.img_size, conf.img_size),
                         device=device)
                     batch_images = render_uncondition(
                         conf=conf,
@@ -262,7 +264,7 @@ def evaluate_fid(
                         conds_std=conds_std,
                         clip_latent_noise=clip_latent_noise,
                     ).cpu()
-                    batch_images = (batch_images + 1) / 2
+                    # batch_images = (batch_images + 1) / 2
                     # keep the generated images
                     for j in range(len(batch_images)):
                         img_name = filename(i + j)
@@ -300,7 +302,7 @@ def evaluate_fid(
                     #                               noise=x_T,
                     #                               model_kwargs=conds).cpu()
                     # denormalize the images
-                    batch_images = (batch_images + 1) / 2
+                    # batch_images = (batch_images + 1) / 2
                     # keep the generated images
                     for j in range(len(batch_images)):
                         img_name = filename(i + j)

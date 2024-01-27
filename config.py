@@ -328,19 +328,6 @@ class TrainConfig(BaseConfig):
                                          drop_last=True)
         else:
             sampler = None
-        # if isinstance(dataset, USDataset):
-        #     return DataLoader(
-        #         dataset,
-        #         batch_size=batch_size or self.batch_size,
-        #         sampler=sampler,
-        #         # with sampler, use the sample instead of this option
-        #         shuffle=False if sampler else shuffle,
-        #         num_workers=num_worker or self.num_workers,
-        #         pin_memory=True,
-        #         drop_last=drop_last,
-        #         multiprocessing_context=get_context('spawn'),
-        #     )
-        # else:
             context = 'fork'
             if os.name == 'nt':
                 context = 'spawn'
