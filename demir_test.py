@@ -7,6 +7,7 @@ for patient in os.listdir(path_name):
                     if image.endswith('.png'):
                            output.append(os.path.join(path_name, patient, '2D', image ))
                             
-print(len(output))
 print(output)
+print(len(output))
+
 
