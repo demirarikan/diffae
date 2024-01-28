@@ -1,5 +1,5 @@
 #!/bin/sh
-#SBATCH --job-name=diffae
+#SBATCH --job-name=diffae-mixed
 #SBATCH --output=./checkpoints/diffae-%A.out # Standard output of the script (Can be absolute or relative path). %A adds the job id to the file name so you can launch the same script multiple times and get different logging files
 #SBATCH --error=./checkpoints/diffae-%A.err # Standard error of the script
 #SBATCH --time=0-65:00:00 # Limit on the total run time (format: dayshours: minutes:seconds)
