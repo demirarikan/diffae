@@ -4,7 +4,7 @@ from diffusion.resample import UniformSampler
 from diffusion.diffusion import space_timesteps
 from typing import Tuple
 
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, ConcatDataset
 
 from config_base import BaseConfig
 from dataset import *
@@ -311,6 +311,9 @@ class TrainConfig(BaseConfig):
             return SimUSDataset(path=self.custom_dataset_path)
         elif self.data_name == 'real_us':
             return RealUSDataset(path=self.custom_dataset_path)
+        elif self.data_name == 'mixed_us':
+            return ConcatDataset([SimUSDataset(path=self.custom_dataset_path[0]),
+                                 RealUSDataset(path=self.custom_dataset_path[1])])
         else:
             raise NotImplementedError()
 

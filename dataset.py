@@ -768,6 +768,31 @@ class RealUSDataset(Dataset):
             img = self.transform(img)
         return {'img': img, 'index': index} 
 
+class MixedUSDataset(Dataset):
+    def __init__(self, real_path, sim_path, transform=transforms.Compose([transforms.Pad((0, 152, 0, 152)), transforms.Resize((128, 128)), transforms.ToTensor()])):
+        self.real_path = real_path
+        self.sim_path = sim_path
+        self.transform = transform
+        self.image_paths = self.get_image_paths()
+    
+    def get_image_paths(self):
+        image_paths = []
+        for patient in os.listdir(self.path):
+            if os.path.isdir(os.path.join(self.path, patient)):
+                for image in os.listdir(os.path.join(self.path, patient, '2D')):
+                    if image.endswith('.png'):
+                           image_paths.append(os.path.join(self.path, patient, '2D', image ))
+        return image_paths
+    
+    def __len__(self):
+        return len(self.image_paths)
+    
+    def __getitem__(self, index):
+        img = Image.open(self.image_paths[index])
+        if self.transform is not None:
+            img = self.transform(img)
+        return {'img': img, 'index': index} 
+
     
 if __name__ == '__main__':
     transform = transforms.Compose([transforms.Pad((0, 152, 0, 152)), transforms.Resize((128, 128)), transforms.ToTensor()])

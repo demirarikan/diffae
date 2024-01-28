@@ -13,8 +13,12 @@ def parse_arguments():
     parser.add_argument('--datatype', type=str, choices=['real', 'sim', 'mixed'],
                         help='Type of dataset: real, sim, or mixed')
 
-    # Add the dataset_path option
-    parser.add_argument('--dataset_path', type=str, help='Path to the dataset')
+    if 'mixed' in parser.parse_known_args()[0].datatype:
+        parser.add_argument('--dataset_path', type=str, nargs=2, metavar=('path1', 'path2'),
+                            help='Two paths to the dataset for mixed datatype')
+    else:
+        parser.add_argument('--dataset_path', type=str, metavar='path',
+                            help='Path to the dataset')
 
     return parser.parse_args()
 
@@ -30,7 +34,8 @@ if __name__ == '__main__':
         conf = real_us_training()
         conf.custom_dataset_path = args.dataset_path
     elif args.datatype == 'mixed':
-        raise NotImplementedError()
+        conf = mixed_us_training()
+        conf.custom_dataset_path = args.dataset_path
     
     train(conf, gpus=gpus)
 

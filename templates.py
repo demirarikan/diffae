@@ -304,7 +304,7 @@ def pretrain_bedroom128():
 def sim_us_training():
     conf = autoenc_base()
     conf.data_name = "sim_us"
-    conf.batch_size = 8
+    conf.batch_size = 16
     conf.batch_size_eval = 1
     conf.eval_ema_every_samples = 12000
     conf.eval_every_samples = 0
@@ -332,4 +332,20 @@ def real_us_training():
     conf.max_epochs = 200
     conf.custom_dataset_path = R'D:\Desktop\demir\diffae\datasets\real_us'
     conf.beta_scheduler = 'cosine'
+    return conf
+
+def mixed_us_training():
+    conf = autoenc_base()
+    conf.data_name = 'mixed_us'
+    conf.batch_size = 16
+    conf.batch_size_eval = 16
+    conf.eval_ema_every_samples = 7866 + 12000
+    conf.eval_every_samples = 0
+    conf.eval_num_images = 1000
+    conf.total_samples = 7866 + 12000
+    conf.img_size = 128
+    conf.num_workers = 4
+    conf.name = 'mixed_us_training_v1'
+    conf.max_epochs = 400
+    conf.beta_scheduler = 'linear'
     return conf
