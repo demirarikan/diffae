@@ -21,7 +21,7 @@ def parse_arguments():
 
 if __name__ == '__main__':
     args = parse_arguments()
-    wandb.login(args.login)
+    wandb.login(key=args.login)
     gpus = [0]
     if args.datatype == 'sim':
         conf = sim_us_training()
