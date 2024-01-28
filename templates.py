@@ -320,14 +320,14 @@ def sim_us_training():
 def real_us_training():
     conf = autoenc_base()
     conf.data_name = "real_us"
-    conf.batch_size = 32
+    conf.batch_size = 16
     conf.batch_size_eval = 16
     conf.eval_ema_every_samples = 8000
     conf.eval_every_samples = 0
     conf.eval_num_images = 500
     conf.total_samples = 7866
     conf.img_size = 128
-    conf.num_workers = 1
+    conf.num_workers = 4
     conf.name = 'real_us_training_v2'
     conf.max_epochs = 200
     conf.custom_dataset_path = R'D:\Desktop\demir\diffae\datasets\real_us'
