@@ -294,16 +294,7 @@ def evaluate_fid(
                         x_start=imgs,
                         cond=None,
                         sampler=sampler,
-                        ).cpu() #latent_sampler=latent_sampler
-                    # model: BeatGANsAutoencModel
-                    # # returns {'cond', 'cond2'}
-                    # conds = model.encode(imgs)
-                    # batch_images = sampler.sample(model=model,
-                    #                               noise=x_T,
-                    #                               model_kwargs=conds).cpu()
-                    # denormalize the images
-                    # batch_images = (batch_images + 1) / 2
-                    # keep the generated images
+                    ).cpu()
                     for j in range(len(batch_images)):
                         img_name = filename(i + j)
                         torchvision.utils.save_image(
@@ -321,7 +312,7 @@ def evaluate_fid(
             [cache_dir, conf.generate_dir],
             batch_size,
             device=device,
-            dims=2048)
+            dims=192)  # Select second layer for inception score because low num of medical images
 
         # remove the cache
         if remove_cache and os.path.exists(conf.generate_dir):
