@@ -221,6 +221,7 @@ class CelebAlmdb(Dataset):
     """
     also supports for d2c crop.
     """
+
     def __init__(self,
                  path,
                  image_size,
@@ -445,6 +446,7 @@ class CelebD2CAttrDataset(CelebAttrDataset):
     the dataset is used in the D2C paper. 
     it has a specific crop from the original CelebA.
     """
+
     def __init__(self,
                  folder,
                  image_size=64,
@@ -718,13 +720,13 @@ class Repeat(Dataset):
 
 class SimUSDataset(Dataset):
     def __init__(self, path, transform=transforms.Compose(
-                [transforms.Pad((0, 41, 0, 41)),
-                 transforms.Resize((128, 128)),
-                 transforms.ToTensor()])):
+        [transforms.Pad((0, 41, 0, 120)),
+         transforms.Resize((128, 128)),
+         transforms.ToTensor()])):
         self.path = path
         self.transform = transform
         self.image_paths = self.get_image_paths()
-    
+
     def get_image_paths(self):
         image_paths = []
         for root, dirs, files in os.walk(self.path):
@@ -737,66 +739,78 @@ class SimUSDataset(Dataset):
 
     def __len__(self):
         return len(self.image_paths)
-    
+
     def __getitem__(self, index):
         img = Image.open(self.image_paths[index])
         if self.transform is not None:
             img = self.transform(img)
         return {'img': img, 'index': index}
-    
+
+
 class RealUSDataset(Dataset):
-    def __init__(self, path, transform=transforms.Compose([transforms.Pad((0, 152, 0, 152)), transforms.Resize((128, 128)), transforms.ToTensor()])):
+    def __init__(self, path, transform=transforms.Compose(
+            [transforms.Pad((0, 152, 0, 152)),
+             transforms.Resize((128, 128)),
+             transforms.ToTensor()])):
         self.path = path
         self.transform = transform
         self.image_paths = self.get_image_paths()
-    
+
     def get_image_paths(self):
         image_paths = []
         for patient in os.listdir(self.path):
             if os.path.isdir(os.path.join(self.path, patient)):
                 for image in os.listdir(os.path.join(self.path, patient, '2D')):
                     if image.endswith('.png'):
-                           image_paths.append(os.path.join(self.path, patient, '2D', image ))
+                        image_paths.append(os.path.join(
+                            self.path, patient, '2D', image))
         return image_paths
-    
+
     def __len__(self):
         return len(self.image_paths)
-    
+
     def __getitem__(self, index):
         img = Image.open(self.image_paths[index])
         if self.transform is not None:
             img = self.transform(img)
-        return {'img': img, 'index': index} 
+        return {'img': img, 'index': index}
+
 
 class MixedUSDataset(Dataset):
-    def __init__(self, real_path, sim_path, transform=transforms.Compose([transforms.Pad((0, 152, 0, 152)), transforms.Resize((128, 128)), transforms.ToTensor()])):
+    def __init__(self, real_path, sim_path, transform=transforms.Compose(
+            [transforms.Pad((0, 152, 0, 152)),
+             transforms.Resize((128, 128)),
+             transforms.ToTensor()])):
         self.real_path = real_path
         self.sim_path = sim_path
         self.transform = transform
         self.image_paths = self.get_image_paths()
-    
+
     def get_image_paths(self):
         image_paths = []
         for patient in os.listdir(self.path):
             if os.path.isdir(os.path.join(self.path, patient)):
                 for image in os.listdir(os.path.join(self.path, patient, '2D')):
                     if image.endswith('.png'):
-                           image_paths.append(os.path.join(self.path, patient, '2D', image ))
+                        image_paths.append(os.path.join(
+                            self.path, patient, '2D', image))
         return image_paths
-    
+
     def __len__(self):
         return len(self.image_paths)
-    
+
     def __getitem__(self, index):
         img = Image.open(self.image_paths[index])
         if self.transform is not None:
             img = self.transform(img)
-        return {'img': img, 'index': index} 
+        return {'img': img, 'index': index}
 
-    
+
 if __name__ == '__main__':
-    transform = transforms.Compose([transforms.Pad((0, 152, 0, 152)), transforms.Resize((128, 128)), transforms.ToTensor()])
-    dataset = RealUSDataset(R'D:\Desktop\demir\diffae\datasets\real_us', transform)
+    transform = transforms.Compose([transforms.Pad(
+        (0, 152, 0, 152)), transforms.Resize((128, 128)), transforms.ToTensor()])
+    dataset = RealUSDataset(
+        R'D:\Desktop\demir\diffae\datasets\real_us', transform)
     print(len(dataset))
     print(dataset[0]['img'].shape)
     import matplotlib.pyplot as plt
