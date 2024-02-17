@@ -183,10 +183,10 @@ class LitModel(pl.LightningModule):
         ##############################################
         main_dataset = self.conf.make_dataset()
         if self.conf.data_name == 'mixed_us':
-            sim_val_train_datasets = random_split(main_dataset[0], [int(self.conf.eval_num_images)/2,
-                                                                    len(main_dataset[0])-int(self.conf.eval_num_images)/2])
-            real_train_val_datasets = random_split(main_dataset[1], [int(self.conf.eval_num_images)/2,
-                                                                     len(main_dataset[1])-int(self.conf.eval_num_images)/2])
+            sim_val_train_datasets = random_split(main_dataset[0], [int(self.conf.eval_num_images)//2,
+                                                                    len(main_dataset[0])-int(self.conf.eval_num_images)//2])
+            real_train_val_datasets = random_split(main_dataset[1], [int(self.conf.eval_num_images)//2,
+                                                                     len(main_dataset[1])-int(self.conf.eval_num_images)//2])
             train_dataset = ConcatDataset(
                 [sim_val_train_datasets[1], real_train_val_datasets[1]])
             val_dataset = ConcatDataset(
