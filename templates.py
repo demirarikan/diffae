@@ -347,5 +347,5 @@ def mixed_us_training():
     conf.num_workers = 4
     conf.name = 'mixed_us_training_v1'
     conf.max_epochs = 400
-    conf.beta_scheduler = 'linear'
+    conf.beta_scheduler = 'cosine'
     return conf
