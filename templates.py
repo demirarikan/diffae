@@ -317,6 +317,7 @@ def sim_us_training():
     conf.custom_dataset_path = R'D:\Desktop\demir\diffae\datasets\CT_labelmaps'
     return conf
 
+
 def real_us_training():
     conf = autoenc_base()
     conf.data_name = "real_us"
@@ -334,18 +335,19 @@ def real_us_training():
     conf.beta_scheduler = 'cosine'
     return conf
 
+
 def mixed_us_training():
     conf = autoenc_base()
     conf.data_name = 'mixed_us'
     conf.batch_size = 16
     conf.batch_size_eval = 16
     conf.eval_ema_every_samples = 7866 + 12000
-    conf.eval_every_samples = 0
+    conf.eval_every_samples = 7866 + 12000
     conf.eval_num_images = 1000
     conf.total_samples = 7866 + 12000
     conf.img_size = 128
     conf.num_workers = 4
     conf.name = 'mixed_us_training_v1'
-    conf.max_epochs = 400
-    conf.beta_scheduler = 'linear'
+    conf.max_epochs = 250
+    conf.beta_scheduler = 'cosine'
     return conf

@@ -312,8 +312,8 @@ class TrainConfig(BaseConfig):
         elif self.data_name == 'real_us':
             return RealUSDataset(path=self.custom_dataset_path)
         elif self.data_name == 'mixed_us':
-            return ConcatDataset([SimUSDataset(path=self.custom_dataset_path[0]),
-                                 RealUSDataset(path=self.custom_dataset_path[1])])
+            return (SimUSDataset(path=self.custom_dataset_path[0]),
+                    RealUSDataset(path=self.custom_dataset_path[1]))
         else:
             raise NotImplementedError()
 

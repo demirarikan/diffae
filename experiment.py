@@ -16,6 +16,7 @@ from torch.cuda import amp
 from torch.distributions import Categorical
 from torch.optim.optimizer import Optimizer
 from torch.utils.data.dataset import ConcatDataset, TensorDataset
+from torch.utils.data import random_split
 from torchvision.utils import make_grid, save_image
 
 from config import *
@@ -99,7 +100,8 @@ class LitModel(pl.LightningModule):
             latent_sampler = self.latent_sampler
         else:
             sampler = self.conf._make_diffusion_conf(T).make_sampler()
-            latent_sampler = self.conf._make_latent_diffusion_conf(T_latent).make_sampler()
+            latent_sampler = self.conf._make_latent_diffusion_conf(
+                T_latent).make_sampler()
 
         noise = torch.randn(N,
                             1,
@@ -179,10 +181,31 @@ class LitModel(pl.LightningModule):
             torch.cuda.manual_seed(seed)
             print('local seed:', seed)
         ##############################################
+        main_dataset = self.conf.make_dataset()
+        if self.conf.data_name == 'mixed_us':
+            sim_val_train_datasets = random_split(main_dataset[0], [int(self.conf.eval_num_images)//2,
+                                                                    len(main_dataset[0])-int(self.conf.eval_num_images)//2])
+            real_train_val_datasets = random_split(main_dataset[1], [int(self.conf.eval_num_images)//2,
+                                                                     len(main_dataset[1])-int(self.conf.eval_num_images)//2])
+            train_dataset = ConcatDataset(
+                [sim_val_train_datasets[1], real_train_val_datasets[1]])
+            val_dataset = ConcatDataset(
+                [sim_val_train_datasets[0], real_train_val_datasets[0]])
 
-        self.train_data = self.conf.make_dataset()
+            self.train_data = train_dataset
+            self.val_data = val_dataset
+
+        elif self.conf.data_name in ['sim_us', 'real_us']:
+            val_dataset, train_dataset = random_split(main_dataset, [int(self.conf.eval_num_images),
+                                                                     len(main_dataset)-int(self.conf.eval_num_images)])
+
+            self.train_data = train_dataset
+            self.val_data = val_dataset
+
+        else:
+            self.train_data = main_dataset
+            self.val_data = self.train_data
         print('train data:', len(self.train_data))
-        self.val_data = self.train_data
         print('val data:', len(self.val_data))
 
     def _train_dataloader(self, drop_last=True):
@@ -399,7 +422,8 @@ class LitModel(pl.LightningModule):
                     losses[key] = self.all_gather(losses[key]).mean()
 
             if self.global_rank == 0:
-                self.logger.experiment.log({'loss': losses['loss']}, step=self.num_samples)
+                self.logger.experiment.log(
+                    {'loss': losses['loss']}, step=self.num_samples)
                 for key in ['vae', 'latent', 'mmd', 'chamfer', 'arg_cnt']:
                     if key in losses:
                         self.logger.experiment.log(
@@ -516,7 +540,8 @@ class LitModel(pl.LightningModule):
 
                     if self.global_rank == 0:
                         grid_real = make_grid(real, normalize=False)
-                        wandb_img = wandb.Image(grid_real.cpu().permute(1,2,0).numpy())
+                        wandb_img = wandb.Image(
+                            grid_real.cpu().permute(1, 2, 0).numpy())
                         self.logger.experiment.log({'real samples': wandb_img})
 
                 if self.global_rank == 0:
@@ -529,7 +554,8 @@ class LitModel(pl.LightningModule):
                     path = os.path.join(sample_dir,
                                         '%d.png' % self.num_samples)
                     save_image(grid, path)
-                    wandb_img = wandb.Image(grid.cpu().permute(1,2,0).numpy())
+                    wandb_img = wandb.Image(
+                        grid.cpu().permute(1, 2, 0).numpy())
                     self.logger.experiment.log({'samples': wandb_img})
             model.train()
 
@@ -586,7 +612,8 @@ class LitModel(pl.LightningModule):
                                  conds_mean=self.conds_mean,
                                  conds_std=self.conds_std)
             if self.global_rank == 0:
-                self.logger.experiment.log({f'FID{postfix}': score}, step=self.num_samples)
+                self.logger.experiment.log(
+                    {f'FID{postfix}': score}, step=self.num_samples)
                 if not os.path.exists(self.conf.logdir):
                     os.makedirs(self.conf.logdir)
                 with open(os.path.join(self.conf.logdir, 'eval.txt'),
@@ -672,7 +699,7 @@ class LitModel(pl.LightningModule):
         for the "eval" mode. 
         We first select what to do according to the "conf.eval_programs". 
         test_step will only run for "one iteration" (it's a hack!).
-        
+
         We just want the multi-gpu support. 
         """
         # make sure you seed each worker differently!
@@ -718,8 +745,7 @@ class LitModel(pl.LightningModule):
                     conds = self.infer_whole_dataset(
                         with_render=True,
                         T_render=T,
-                        render_save_path=
-                        f'latent_infer_render{T}/{self.conf.name}.lmdb',
+                        render_save_path=f'latent_infer_render{T}/{self.conf.name}.lmdb',
                     )
                     save_path = f'latent_infer_render{T}/{self.conf.name}.pkl'
                     conds_mean = conds.mean(dim=0)
@@ -901,9 +927,9 @@ def train(conf: TrainConfig, gpus, nodes=1, mode: str = 'train'):
     #                                          name=None,
     #                                          version='')
     wandb_logger = pl_loggers.WandbLogger(save_dir=conf.logdir,
-                                       name=None,
-                                       version='',
-                                       project='diffae')
+                                          name=None,
+                                          version='',
+                                          project='diffae')
 
     # from pytorch_lightning.
 
@@ -918,7 +944,7 @@ def train(conf: TrainConfig, gpus, nodes=1, mode: str = 'train'):
         plugins.append(DDPPlugin(find_unused_parameters=False))
 
     trainer = pl.Trainer(
-        max_epochs = conf.max_epochs,
+        max_epochs=conf.max_epochs,
         # max_steps=conf.total_samples // conf.batch_size_effective,
         resume_from_checkpoint=resume,
         gpus=gpus,
