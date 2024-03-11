@@ -12,9 +12,9 @@ datasets/celeba.lmdb
 datasets/celeba
 datasets/CT_labelmaps
 datasets/real_us
-checkpoints
 datasets/sim_us
 datasets
+checkpoints
 
 .ipynb_checkpoints/
 env-diffae
