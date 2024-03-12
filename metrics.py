@@ -28,9 +28,9 @@ def make_subset_loader(conf: TrainConfig,
         sampler = DistributedSampler(dataset, shuffle=shuffle)
     else:
         sampler = None
-        context = 'fork'
-        if os.name == 'nt':
-            context = 'spawn'
+    context = 'fork'
+    if os.name == 'nt':
+        context = 'spawn'
     return DataLoader(
         dataset,
         batch_size=batch_size,
