@@ -16,6 +16,8 @@ datasets/sim_us
 datasets
 checkpoints
 
+ignore_mixed_training.sh
+
 .ipynb_checkpoints/
 env-diffae
 .vscode
