@@ -308,12 +308,12 @@ class TrainConfig(BaseConfig):
                               crop_d2c=True,
                               **kwargs)
         elif self.data_name == 'sim_us':
-            return SimUSDataset(path=self.custom_dataset_path)
+            return CrawlerDataset(path=self.custom_dataset_path)
         elif self.data_name == 'real_us':
-            return RealUSDataset(path=self.custom_dataset_path)
+            return CrawlerDataset(path=self.custom_dataset_path)
         elif self.data_name == 'mixed_us':
-            return (SimUSDataset(path=self.custom_dataset_path[0]),
-                    RealUSDataset(path=self.custom_dataset_path[1]))
+            return (CrawlerDataset(path=self.custom_dataset_path[0]),
+                    CrawlerDataset(path=self.custom_dataset_path[1]))
         else:
             raise NotImplementedError()
 

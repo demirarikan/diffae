@@ -183,14 +183,14 @@ class LitModel(pl.LightningModule):
         ##############################################
         main_dataset = self.conf.make_dataset()
         if self.conf.data_name == 'mixed_us':
-            sim_val_train_datasets = random_split(main_dataset[0], [int(self.conf.eval_num_images)//2,
+            sim_train_val_datasets = random_split(main_dataset[0], [int(self.conf.eval_num_images)//2,
                                                                     len(main_dataset[0])-int(self.conf.eval_num_images)//2])
             real_train_val_datasets = random_split(main_dataset[1], [int(self.conf.eval_num_images)//2,
                                                                      len(main_dataset[1])-int(self.conf.eval_num_images)//2])
             train_dataset = ConcatDataset(
-                [sim_val_train_datasets[1], real_train_val_datasets[1]])
+                [sim_train_val_datasets[1], real_train_val_datasets[1]])
             val_dataset = ConcatDataset(
-                [sim_val_train_datasets[0], real_train_val_datasets[0]])
+                [sim_train_val_datasets[0], real_train_val_datasets[0]])
 
             self.train_data = train_dataset
             self.val_data = val_dataset
@@ -900,8 +900,6 @@ def is_time(num_samples, every, step_size):
 
 def train(conf: TrainConfig, gpus, nodes=1, mode: str = 'train'):
     print('conf:', conf.name)
-    # assert not (conf.fp16 and conf.grad_clip > 0
-    #             ), 'pytorch lightning has bug with amp + gradient clipping'
     model = LitModel(conf)
 
     if not os.path.exists(conf.logdir):
@@ -923,15 +921,10 @@ def train(conf: TrainConfig, gpus, nodes=1, mode: str = 'train'):
         else:
             resume = None
 
-    # tb_logger = pl_loggers.TensorBoardLogger(save_dir=conf.logdir,
-    #                                          name=None,
-    #                                          version='')
     wandb_logger = pl_loggers.WandbLogger(save_dir=conf.logdir,
                                           name=None,
                                           version='',
                                           project='diffae')
-
-    # from pytorch_lightning.
 
     plugins = []
     if len(gpus) == 1 and nodes == 1:
@@ -989,16 +982,11 @@ def train(conf: TrainConfig, gpus, nodes=1, mode: str = 'train'):
                 wandb_logger.experiment.add_scalar(
                     k, v, state['global_step'] * conf.batch_size_effective)
 
-            # # save to file
-            # # make it a dict of list
-            # for k, v in out.items():
-            #     out[k] = [v]
             tgt = f'evals/{conf.name}.txt'
             dirname = os.path.dirname(tgt)
             if not os.path.exists(dirname):
                 os.makedirs(dirname)
             with open(tgt, 'a') as f:
                 f.write(json.dumps(out) + "\n")
-            # pd.DataFrame(out).to_csv(tgt)
     else:
         raise NotImplementedError()

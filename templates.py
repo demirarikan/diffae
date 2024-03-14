@@ -341,13 +341,13 @@ def mixed_us_training():
     conf.data_name = 'mixed_us'
     conf.batch_size = 16
     conf.batch_size_eval = 16
-    conf.eval_ema_every_samples = 7866 + 12000
-    conf.eval_every_samples = 7866 + 12000
-    conf.eval_num_images = 1000
-    conf.total_samples = 7866 + 12000
+    conf.eval_ema_every_samples = 7897 + 6806
+    conf.eval_every_samples = 7897 + 6806
+    conf.eval_num_images = 1200
+    conf.total_samples = 7897 + 6806
     conf.img_size = 128
     conf.num_workers = 4
-    conf.name = 'mixed_us_training_v1'
+    conf.name = 'mixed_us_training_cropped'
     conf.max_epochs = 250
     conf.beta_scheduler = 'cosine'
     return conf

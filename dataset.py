@@ -746,7 +746,6 @@ class SimUSDataset(Dataset):
             img = self.transform(img)
         return {'img': img, 'index': index}
 
-
 class RealUSDataset(Dataset):
     def __init__(self, path, transform=transforms.Compose(
             [transforms.Pad((0, 152, 0, 152)),
@@ -775,44 +774,39 @@ class RealUSDataset(Dataset):
             img = self.transform(img)
         return {'img': img, 'index': index}
 
-
-class MixedUSDataset(Dataset):
-    def __init__(self, real_path, sim_path, transform=transforms.Compose(
-            [transforms.Pad((0, 152, 0, 152)),
-             transforms.Resize((128, 128)),
-             transforms.ToTensor()])):
-        self.real_path = real_path
-        self.sim_path = sim_path
+class CrawlerDataset(Dataset):
+    # Collects all .png files in a directory and its subdirectories
+    def __init__(self, path, transform=transforms.Compose(
+        [transforms.Resize((128, 128)),
+         transforms.ToTensor()])):
+        self.path = path
         self.transform = transform
         self.image_paths = self.get_image_paths()
-
+    
     def get_image_paths(self):
+        # crawl the self.path and all its sub directories and collect the paths to .png files 
         image_paths = []
-        for patient in os.listdir(self.path):
-            if os.path.isdir(os.path.join(self.path, patient)):
-                for image in os.listdir(os.path.join(self.path, patient, '2D')):
-                    if image.endswith('.png'):
-                        image_paths.append(os.path.join(
-                            self.path, patient, '2D', image))
+        for root, dirs, files in os.walk(self.path):
+            for file in files:
+                if file.endswith('.png'):
+                    image_paths.append(os.path.join(root, file))
         return image_paths
 
     def __len__(self):
         return len(self.image_paths)
-
+    
     def __getitem__(self, index):
         img = Image.open(self.image_paths[index])
         if self.transform is not None:
             img = self.transform(img)
         return {'img': img, 'index': index}
 
-
 if __name__ == '__main__':
-    transform = transforms.Compose([transforms.Pad(
-        (0, 152, 0, 152)), transforms.Resize((128, 128)), transforms.ToTensor()])
-    dataset = RealUSDataset(
-        R'D:\Desktop\demir\diffae\datasets\real_us', transform)
+    # transform = transforms.Compose([transforms.Pad(
+    #     (0, 152, 0, 152)), transforms.Resize((128, 128)), transforms.ToTensor()])
+    dataset = CrawlerDataset('datasets/source_train_cropped')
     print(len(dataset))
     print(dataset[0]['img'].shape)
     import matplotlib.pyplot as plt
-    plt.imshow(dataset[0]['img'][0], cmap='gray')
+    plt.imshow(dataset[7]['img'][0], cmap='gray')
     plt.show()
