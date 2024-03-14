@@ -26,7 +26,7 @@ def parse_arguments():
 if __name__ == '__main__':
     args = parse_arguments()
     wandb.login(key=args.login)
-    gpus = [0]
+    gpus = [0,1]
     if args.datatype == 'sim':
         conf = sim_us_training()
         conf.custom_dataset_path = args.dataset_path
