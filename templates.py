@@ -340,9 +340,9 @@ def mixed_us_training():
     conf = autoenc_base()
     conf.data_name = 'mixed_us'
     conf.batch_size = 16
-    conf.batch_size_eval = 16
-    conf.eval_ema_every_samples = 7897 + 6806
-    conf.eval_every_samples = 7897 + 6806
+    conf.batch_size_eval = 8
+    conf.eval_ema_every_samples = (7897 + 6806)*5
+    conf.eval_every_samples = (7897 + 6806)*5
     conf.eval_num_images = 1200
     conf.total_samples = 7897 + 6806
     conf.img_size = 128
