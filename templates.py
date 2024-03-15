@@ -339,6 +339,7 @@ def real_us_training():
 def mixed_us_training():
     conf = autoenc_base()
     conf.data_name = 'mixed_us'
+    # for multi gpu training you want batch_size_eval*num_gpus = batch_size, otherwise set them equal
     conf.batch_size = 16
     conf.batch_size_eval = 8
     conf.eval_ema_every_samples = (7897 + 6806)*5
@@ -347,7 +348,7 @@ def mixed_us_training():
     conf.total_samples = 7897 + 6806
     conf.img_size = 128
     conf.num_workers = 4
-    conf.name = 'mixed_us_training_cropped'
+    conf.name = 'cropped_padded_amiro'
     conf.max_epochs = 250
     conf.beta_scheduler = 'cosine'
     return conf
