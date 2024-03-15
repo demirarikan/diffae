@@ -776,9 +776,12 @@ class RealUSDataset(Dataset):
 
 class CrawlerDataset(Dataset):
     # Collects all .png files in a directory and its subdirectories
-    def __init__(self, path, transform=transforms.Compose(
-        [transforms.Resize((128, 128)),
-         transforms.ToTensor()])):
+    def __init__(self, path, transform=transforms.Compose([
+        # default transforms for cropped US images dataset
+        transforms.Pad((0, 80, 0, 80)),
+        transforms.Resize((128, 128)),
+        transforms.ToTensor()
+        ])):
         self.path = path
         self.transform = transform
         self.image_paths = self.get_image_paths()
@@ -802,11 +805,15 @@ class CrawlerDataset(Dataset):
         return {'img': img, 'index': index}
 
 if __name__ == '__main__':
-    # transform = transforms.Compose([transforms.Pad(
-    #     (0, 152, 0, 152)), transforms.Resize((128, 128)), transforms.ToTensor()])
-    dataset = CrawlerDataset('datasets/source_train_cropped')
-    print(len(dataset))
-    print(dataset[0]['img'].shape)
+    # transform1 = transforms.Compose([transforms.Pad(
+    #     (0, 80, 0, 60)), transforms.Resize((128, 128)), transforms.ToTensor()])
+    # transform2 = transforms.Compose([transforms.Pad(
+    #     (0, 80, 0, 80)), transforms.Resize((128, 128)), transforms.ToTensor()])
+    sim_dataset = CrawlerDataset('/home/demir/Desktop/diffae-datasets/source_train_cropped')
+    real_dataset = CrawlerDataset('/home/demir/Desktop/diffae-datasets/target_train_cropped')
+    print(len(sim_dataset), len(real_dataset))
     import matplotlib.pyplot as plt
-    plt.imshow(dataset[7]['img'][0], cmap='gray')
+    fig, ax = plt.subplots(1, 2)
+    ax[0].imshow(sim_dataset[0]['img'][0], cmap='gray')
+    ax[1].imshow(real_dataset[78]['img'][0], cmap='gray')
     plt.show()
