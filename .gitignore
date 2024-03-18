@@ -13,10 +13,8 @@ datasets/celeba
 datasets/CT_labelmaps
 datasets/real_us
 datasets/sim_us
-datasets
-checkpoints
-
-ignore_mixed_training.sh
+datasets/*
+checkpoints/*
 
 .ipynb_checkpoints/
 env-diffae

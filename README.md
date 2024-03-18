@@ -35,7 +35,9 @@ After setting up the environment install go to [Pytorch website](https://pytorch
 
 Because the required version of pytroch-fid package has a bug in it, it cannot be directly installed with pip. For this reason a fixed versin of the packge has been included in the repo. Just run the following command to install it while in the correct path.
 
-`pip install pytorch-fid-0.2.0`
+```
+pip install pytorch-fid-0.2.0
+```
 
 For the rest of the requirements see `requirements.txt`
 
