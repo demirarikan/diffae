@@ -301,42 +301,60 @@ def pretrain_bedroom128():
     return conf
 
 
-def sim_us_training():
-    conf = autoenc_base()
-    conf.data_name = "sim_us"
-    conf.batch_size = 16
-    conf.batch_size_eval = 1
-    conf.eval_ema_every_samples = 12000
-    conf.eval_every_samples = 0
-    conf.eval_num_images = 1
-    conf.total_samples = 12000
-    conf.img_size = 128
-    conf.num_workers = 1
-    conf.name = 'sim_us_training_v2'
-    conf.max_epochs = 200
-    conf.custom_dataset_path = R'D:\Desktop\demir\diffae\datasets\CT_labelmaps'
-    return conf
+# def sim_us_training():
+#     conf = autoenc_base()
+#     conf.data_name = "sim_us"
+#     conf.batch_size = 16
+#     conf.batch_size_eval = 1
+#     conf.eval_ema_every_samples = 12000
+#     conf.eval_every_samples = 0
+#     conf.eval_num_images = 1
+#     conf.total_samples = 12000
+#     conf.img_size = 128
+#     conf.num_workers = 1
+#     conf.name = 'sim_us_training_v2'
+#     conf.max_epochs = 200
+#     conf.custom_dataset_path = R'D:\Desktop\demir\diffae\datasets\CT_labelmaps'
+#     return conf
 
 
-def real_us_training():
+# def real_us_training():
+#     conf = autoenc_base()
+#     conf.data_name = "real_us"
+#     conf.batch_size = 16
+#     conf.batch_size_eval = 16
+#     conf.eval_ema_every_samples = 8000
+#     conf.eval_every_samples = 0
+#     conf.eval_num_images = 500
+#     conf.total_samples = 7866
+#     conf.img_size = 128
+#     conf.num_workers = 4
+#     conf.name = 'real_us_training_v2'
+#     conf.max_epochs = 200
+#     conf.custom_dataset_path = R'D:\Desktop\demir\diffae\datasets\real_us'
+#     conf.beta_scheduler = 'cosine'
+#     return conf
+
+
+def mixed_us_training():
     conf = autoenc_base()
-    conf.data_name = "real_us"
+    conf.data_name = 'mixed_us'
+    # for multi gpu training you want batch_size_eval*num_gpus = batch_size, otherwise set them equal
     conf.batch_size = 16
     conf.batch_size_eval = 16
-    conf.eval_ema_every_samples = 8000
-    conf.eval_every_samples = 0
-    conf.eval_num_images = 500
-    conf.total_samples = 7866
+    conf.eval_ema_every_samples = (7897 + 6806)*5
+    conf.eval_every_samples = (7897 + 6806)*5
+    conf.eval_num_images = 1200
+    conf.total_samples = 7897 + 6806
     conf.img_size = 128
     conf.num_workers = 4
-    conf.name = 'real_us_training_v2'
-    conf.max_epochs = 200
-    conf.custom_dataset_path = R'D:\Desktop\demir\diffae\datasets\real_us'
+    conf.name = 'final_mixed_training'
+    conf.max_epochs = 250
     conf.beta_scheduler = 'cosine'
     return conf
 
 
-def mixed_us_training():
+def multi_gpu_training():
     conf = autoenc_base()
     conf.data_name = 'mixed_us'
     # for multi gpu training you want batch_size_eval*num_gpus = batch_size, otherwise set them equal
@@ -348,7 +366,7 @@ def mixed_us_training():
     conf.total_samples = 7897 + 6806
     conf.img_size = 128
     conf.num_workers = 4
-    conf.name = 'cropped_padded_amiro'
+    conf.name = 'multi_gpu_training'
     conf.max_epochs = 250
     conf.beta_scheduler = 'cosine'
     return conf

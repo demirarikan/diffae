@@ -717,63 +717,6 @@ class Repeat(Dataset):
         index = index % self.original_len
         return self.dataset[index]
 
-
-class SimUSDataset(Dataset):
-    def __init__(self, path, transform=transforms.Compose(
-        [transforms.Pad((0, 41, 0, 120)),
-         transforms.Resize((128, 128)),
-         transforms.ToTensor()])):
-        self.path = path
-        self.transform = transform
-        self.image_paths = self.get_image_paths()
-
-    def get_image_paths(self):
-        image_paths = []
-        for root, dirs, files in os.walk(self.path):
-            for dir in dirs:
-                for root2, dirs2, files2 in os.walk(os.path.join(root, dir)):
-                    for file in files2:
-                        if file.endswith('.png'):
-                            image_paths.append(os.path.join(root2, file))
-        return image_paths
-
-    def __len__(self):
-        return len(self.image_paths)
-
-    def __getitem__(self, index):
-        img = Image.open(self.image_paths[index])
-        if self.transform is not None:
-            img = self.transform(img)
-        return {'img': img, 'index': index}
-
-class RealUSDataset(Dataset):
-    def __init__(self, path, transform=transforms.Compose(
-            [transforms.Pad((0, 152, 0, 152)),
-             transforms.Resize((128, 128)),
-             transforms.ToTensor()])):
-        self.path = path
-        self.transform = transform
-        self.image_paths = self.get_image_paths()
-
-    def get_image_paths(self):
-        image_paths = []
-        for patient in os.listdir(self.path):
-            if os.path.isdir(os.path.join(self.path, patient)):
-                for image in os.listdir(os.path.join(self.path, patient, '2D')):
-                    if image.endswith('.png'):
-                        image_paths.append(os.path.join(
-                            self.path, patient, '2D', image))
-        return image_paths
-
-    def __len__(self):
-        return len(self.image_paths)
-
-    def __getitem__(self, index):
-        img = Image.open(self.image_paths[index])
-        if self.transform is not None:
-            img = self.transform(img)
-        return {'img': img, 'index': index}
-
 class CrawlerDataset(Dataset):
     # Collects all .png files in a directory and its subdirectories
     def __init__(self, path, transform=transforms.Compose([
