@@ -15,4 +15,4 @@ ml miniconda3 # load default miniconda and python module
 conda deactivate
 source activate env-diffae
 # run the script
-python us_training.py --login 48bbbe5c57a936ef9247a8de2537af5b86e5694e --datatype mixed --dataset /home/data/farid/simulated_images_cs_Demir_Yichen_Daniel/source_train_cropped /home/data/farid/simulated_images_cs_Demir_Yichen_Daniel/target_train_cropped/
+python us_training.py --login add_wandb_key_here --datatype mixed --dataset /home/data/farid/simulated_images_cs_Demir_Yichen_Daniel/source_train_cropped /home/data/farid/simulated_images_cs_Demir_Yichen_Daniel/target_train_cropped/
